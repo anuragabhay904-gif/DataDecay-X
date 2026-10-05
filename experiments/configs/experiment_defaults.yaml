@@ -1,0 +1,190 @@
+# ============================================================
+# DataDecay-X
+# Default experiment configuration
+# ============================================================
+
+experiment:
+  name: "datadecay_default"
+  seed: 42
+
+# ------------------------------------------------------------
+# Dataset
+# ------------------------------------------------------------
+dataset:
+  name: "LD2011_2014"
+  path: "data/raw/LD2011_2014.txt"
+
+  timestamp_column: "timestamp"
+
+  delimiter: ";"
+  decimal: ","
+
+# ------------------------------------------------------------
+# Chronological split
+# ------------------------------------------------------------
+split:
+  method: "chronological"
+
+  reference_fraction: 0.60
+  monitoring_fraction: 0.20
+  evaluation_fraction: 0.20
+
+  shuffle: false
+
+# ------------------------------------------------------------
+# Feature selection
+# ------------------------------------------------------------
+features:
+  method: "top_variance"
+  count: 5
+
+  exclude:
+    - "timestamp"
+
+# ------------------------------------------------------------
+# Monitoring
+# ------------------------------------------------------------
+monitoring:
+  window_size: 1000
+  step_size: 1000
+
+# ------------------------------------------------------------
+# Drift
+# ------------------------------------------------------------
+drift:
+  magnitude: 0.30
+
+  scenarios:
+    - "stable"
+    - "gradual"
+    - "abrupt"
+    - "recurring"
+
+  gradual:
+    start_fraction: 0.25
+    end_fraction: 0.75
+
+  abrupt:
+    start_fraction: 0.50
+
+  recurring:
+    cycle_length: 1000
+
+# ------------------------------------------------------------
+# Drift detection
+# ------------------------------------------------------------
+detection:
+  metrics:
+    - "psi"
+    - "ks"
+    - "wasserstein"
+
+  psi_reference: 0.25
+  wasserstein_reference: 1.0
+
+  weights:
+    psi: 0.333333
+    ks: 0.333333
+    wasserstein: 0.333334
+
+  severity:
+    low: 0.20
+    moderate: 0.50
+    high: 0.75
+
+# ------------------------------------------------------------
+# Models
+# ------------------------------------------------------------
+models:
+  baseline:
+    regression:
+      type: "mean"
+
+    classification:
+      type: "logistic_regression"
+      max_iter: 1000
+
+  evaluation:
+    regression_metrics:
+      - "mae"
+      - "mse"
+      - "rmse"
+      - "r2"
+
+    classification_metrics:
+      - "accuracy"
+      - "f1_weighted"
+
+# ------------------------------------------------------------
+# Forecasting
+# ------------------------------------------------------------
+forecasting:
+  default_method: "persistence"
+
+  methods:
+    - "persistence"
+    - "linear_trend"
+
+  horizon: 5
+
+# ------------------------------------------------------------
+# Reliability
+# ------------------------------------------------------------
+reliability:
+  regression_metric: "r2"
+  classification_metric: "accuracy"
+
+# ------------------------------------------------------------
+# Synthetic data
+# ------------------------------------------------------------
+synthetic:
+  enabled: true
+
+  default_method: "bootstrap"
+
+  methods:
+    - "bootstrap"
+    - "perturbation"
+    - "block_bootstrap"
+
+  noise_scale: 0.01
+  block_size: 96
+
+  quality_gate:
+    enabled: true
+    dsi_threshold: 0.50
+    range_tolerance: 0.0
+    max_mean_difference: 0.20
+    max_std_difference: 0.30
+
+# ------------------------------------------------------------
+# Recovery
+# ------------------------------------------------------------
+recovery:
+  enabled: true
+
+  methods:
+    - "interpolate"
+    - "forward_fill"
+    - "backward_fill"
+    - "median"
+
+  default_method: "interpolate"
+
+# ------------------------------------------------------------
+# Output
+# ------------------------------------------------------------
+output:
+  results_directory: "experiments/results"
+
+  save_metrics: true
+  save_metadata: true
+  save_intermediate_data: true
+  save_plots: true
+
+# ------------------------------------------------------------
+# Reproducibility
+# ------------------------------------------------------------
+reproducibility:
+  seed: 42
+  deterministic: true

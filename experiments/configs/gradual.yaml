@@ -1,0 +1,75 @@
+# ============================================================
+# DataDecay-X
+# Gradual drift experiment configuration
+# ============================================================
+
+experiment:
+  name: "gradual"
+  seed: 42
+
+dataset:
+  name: "LD2011_2014"
+  path: "data/raw/LD2011_2014.txt"
+  timestamp_column: "timestamp"
+  delimiter: ";"
+  decimal: ","
+
+split:
+  method: "chronological"
+  reference_fraction: 0.60
+  monitoring_fraction: 0.20
+  evaluation_fraction: 0.20
+  shuffle: false
+
+features:
+  method: "top_variance"
+  count: 5
+
+monitoring:
+  window_size: 1000
+  step_size: 1000
+
+drift:
+  scenario: "gradual"
+  magnitude: 0.30
+
+  gradual:
+    start_fraction: 0.25
+    end_fraction: 0.75
+
+detection:
+  metrics:
+    - "psi"
+    - "ks"
+    - "wasserstein"
+
+  severity:
+    low: 0.20
+    moderate: 0.50
+    high: 0.75
+
+models:
+  baseline:
+    regression:
+      type: "mean"
+
+forecasting:
+  default_method: "persistence"
+  horizon: 5
+
+synthetic:
+  enabled: false
+
+recovery:
+  enabled: false
+
+output:
+  results_directory: "experiments/results/gradual"
+  save_metrics: true
+  save_metadata: true
+  save_intermediate_data: true
+  save_plots: true
+
+reproducibility:
+  seed: 42
+  deterministic: true

@@ -1,0 +1,213 @@
+# ============================================================
+# DataDecay-X
+# Global project settings
+# ============================================================
+
+project:
+  name: "DataDecay-X"
+  version: "1.0"
+  random_seed: 42
+
+# ------------------------------------------------------------
+# Dataset configuration
+# ------------------------------------------------------------
+dataset:
+  name: "LD2011_2014"
+
+  raw_path: "data/raw/LD2011_2014.txt"
+
+  processed_path: "data/processed"
+
+  timestamp_column: "timestamp"
+
+  # The electricity dataset does not contain a native
+  # supervised target column.
+  #
+  # Person 2 constructs a next-step forecasting/regression
+  # target from the electricity series instead of inventing
+  # a target in the raw dataset.
+  target_column: null
+
+  delimiter: ";"
+  decimal: ","
+
+  has_header: true
+
+  datetime_format: "%Y-%m-%d %H:%M:%S"
+
+# ------------------------------------------------------------
+# Temporal evaluation
+# ------------------------------------------------------------
+temporal:
+  chronological: true
+  shuffle: false
+
+  reference_fraction: 0.60
+  monitoring_fraction: 0.20
+  evaluation_fraction: 0.20
+
+  # Future observations must remain isolated from
+  # reference/model-training data.
+  prevent_future_leakage: true
+
+# ------------------------------------------------------------
+# Feature configuration
+# ------------------------------------------------------------
+features:
+  exclude_columns:
+    - "timestamp"
+
+  selection_method: "variance"
+
+  number_of_features: 5
+
+# ------------------------------------------------------------
+# Monitoring windows
+# ------------------------------------------------------------
+monitoring:
+  window_size: 1000
+  step_size: 1000
+
+  minimum_window_size: 100
+
+# ------------------------------------------------------------
+# Drift detection
+# ------------------------------------------------------------
+drift:
+  metrics:
+    - "psi"
+    - "ks"
+    - "wasserstein"
+
+  psi_reference: 0.25
+  wasserstein_reference: 1.0
+
+  dsi_weights:
+    psi: 0.333333
+    ks: 0.333333
+    wasserstein: 0.333334
+
+  severity_thresholds:
+    low: 0.20
+    moderate: 0.50
+    high: 0.75
+
+# ------------------------------------------------------------
+# Model configuration
+# ------------------------------------------------------------
+model:
+  baseline:
+    classification:
+      algorithm: "logistic_regression"
+      max_iter: 1000
+      random_state: 42
+
+    regression:
+      algorithm: "mean_baseline"
+
+  evaluation:
+    classification_metrics:
+      - "accuracy"
+      - "f1_weighted"
+
+    regression_metrics:
+      - "mae"
+      - "rmse"
+      - "r2"
+
+# ------------------------------------------------------------
+# Reliability monitoring
+# ------------------------------------------------------------
+reliability:
+  classification_primary_metric: "accuracy"
+  regression_primary_metric: "r2"
+
+  degradation:
+    warning_ratio: 0.90
+    moderate_ratio: 0.80
+    severe_ratio: 0.60
+
+# ------------------------------------------------------------
+# Forecasting
+# ------------------------------------------------------------
+forecasting:
+  default_method: "persistence"
+
+  available_methods:
+    - "persistence"
+    - "linear_trend"
+
+  horizon: 5
+
+# ------------------------------------------------------------
+# Synthetic data
+# ------------------------------------------------------------
+synthetic:
+  default_method: "bootstrap"
+
+  methods:
+    - "bootstrap"
+    - "perturbation"
+
+  random_state: 42
+
+  noise_scale: 0.01
+
+  quality_gate:
+    enabled: true
+
+    threshold: 0.50
+
+    psi_threshold: 0.50
+
+    wasserstein_threshold: 2.0
+
+    correlation_difference: 0.50
+
+# ------------------------------------------------------------
+# Recovery
+# ------------------------------------------------------------
+recovery:
+  default_method: "interpolate"
+
+  available_methods:
+    - "interpolate"
+    - "forward_fill"
+    - "backward_fill"
+    - "median"
+
+  preserve_timestamp: true
+
+# ------------------------------------------------------------
+# Experiment configuration
+# ------------------------------------------------------------
+experiments:
+  output_directory: "experiments/results"
+
+  save_intermediate_data: true
+  save_metadata: true
+  save_metrics: true
+  save_plots: true
+
+  scenarios:
+    - "stable"
+    - "gradual"
+    - "abrupt"
+    - "recurring"
+
+# ------------------------------------------------------------
+# Reproducibility
+# ------------------------------------------------------------
+reproducibility:
+  seed: 42
+  deterministic: true
+
+# ------------------------------------------------------------
+# Project safety rules
+# ------------------------------------------------------------
+safety:
+  never_modify_raw_data: true
+  never_shuffle_temporal_data: true
+  preserve_ground_truth: true
+  isolate_evaluation_data: true
+  synthetic_data_requires_quality_gate: true

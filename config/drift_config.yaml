@@ -1,0 +1,121 @@
+# ============================================================
+# DataDecay-X
+# Drift scenario configuration
+# ============================================================
+
+seed: 42
+
+# ------------------------------------------------------------
+# Features affected by controlled drift
+# ------------------------------------------------------------
+features:
+  selection_method: "top_variance"
+  number_of_features: 5
+
+# ------------------------------------------------------------
+# Stable scenario
+# ------------------------------------------------------------
+stable:
+  enabled: true
+
+  type: "stable"
+
+  magnitude: 0.0
+
+  start_window: null
+  end_window: null
+
+# ------------------------------------------------------------
+# Gradual drift
+# ------------------------------------------------------------
+gradual:
+  enabled: true
+
+  type: "gradual"
+
+  # Fraction of the monitoring period where drift begins.
+  start_fraction: 0.25
+
+  # Fraction of the monitoring period where drift reaches
+  # its maximum magnitude.
+  end_fraction: 0.75
+
+  magnitude: 0.30
+
+  reference: "reference"
+
+# ------------------------------------------------------------
+# Abrupt drift
+# ------------------------------------------------------------
+abrupt:
+  enabled: true
+
+  type: "abrupt"
+
+  # Abrupt drift begins halfway through the monitoring period.
+  start_fraction: 0.50
+
+  magnitude: 0.30
+
+  reference: "reference"
+
+# ------------------------------------------------------------
+# Recurring drift
+# ------------------------------------------------------------
+recurring:
+  enabled: true
+
+  type: "recurring"
+
+  magnitude: 0.30
+
+  cycle_length: 1000
+
+  reference: "reference"
+
+# ------------------------------------------------------------
+# Drift metadata
+# ------------------------------------------------------------
+metadata:
+  save_ground_truth: true
+
+  fields:
+    - "scenario"
+    - "affected_features"
+    - "start_window"
+    - "end_window"
+    - "magnitude"
+    - "seed"
+    - "schedule"
+    - "configuration"
+
+# ------------------------------------------------------------
+# Detection configuration
+# ------------------------------------------------------------
+detection:
+  psi_reference: 0.25
+  wasserstein_reference: 1.0
+
+  weights:
+    psi: 0.333333
+    ks: 0.333333
+    wasserstein: 0.333334
+
+  severity:
+    low: 0.20
+    moderate: 0.50
+    high: 0.75
+
+# ------------------------------------------------------------
+# Output locations
+# ------------------------------------------------------------
+output:
+  root: "data/drifted"
+
+  scenarios:
+    stable: "data/drifted/stable"
+    gradual: "data/drifted/gradual"
+    abrupt: "data/drifted/abrupt"
+    recurring: "data/drifted/recurring"
+
+  metadata: "experiments/results"
